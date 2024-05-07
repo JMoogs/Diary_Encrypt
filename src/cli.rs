@@ -2,35 +2,59 @@ use clap::{Args, Parser, Subcommand};
 
 #[derive(Parser)]
 #[command(version, about)]
-struct Cli {
+pub struct Cli {
     #[command(subcommand)]
     command: Commands,
-
+    #[command(flatten)]
+    pub pass_option: PasswordOptions,
     /// Increase verbosity of the command
     #[arg(short, long, action = clap::ArgAction::Count)]
-    verbose: u8,
+    pub verbose: u8,
 }
 
 #[derive(Subcommand)]
 enum Commands {
     /// Commands that solely encrypt data
-    Encrypt {},
+    Encrypt(#[command(flatten)] EncryptDecryptOptions),
     /// Commands that solely decrypt data
-    Decrypt {},
+    Decrypt(#[command(flatten)] EncryptDecryptOptions),
     /// Commands that additionally use git
     Git {},
 }
 
 #[derive(Args)]
-#[group(multiple = false)]
-struct PasswordOptions {
+#[group(required = false, multiple = false)]
+pub struct PasswordOptions {
     /// Read the password from the given environment variable
     #[arg(long)]
-    password_env: String,
+    pub password_env: Option<String>,
     /// Read the password from the given file
     #[arg(long)]
-    password_file: String,
+    pub password_file: Option<String>,
     /// Provide the password as an argument
     #[arg(long)]
-    password: String,
+    pub password: Option<String>,
+}
+
+#[derive(Args)]
+pub struct EncryptDecryptOptions {
+    /// An input file or directory
+    #[arg(short, long)]
+    pub input: String,
+    #[command(flatten)]
+    pub output: OutputOptions,
+    /// Force encryption/decryption, bypassing any checks
+    #[arg(long, short)]
+    pub force: bool,
+}
+
+#[derive(Args)]
+#[group(multiple = false, required = true)]
+pub struct OutputOptions {
+    /// The output file/directory name
+    #[arg(short, long)]
+    pub output: String,
+    /// Replace the input file with the output file
+    #[arg(short, long)]
+    pub replace: bool,
 }
