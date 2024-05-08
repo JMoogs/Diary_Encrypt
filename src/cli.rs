@@ -4,7 +4,7 @@ use clap::{Args, Parser, Subcommand};
 #[command(version, about)]
 pub struct Cli {
     #[command(subcommand)]
-    command: Commands,
+    pub command: Commands,
     #[command(flatten)]
     pub pass_option: PasswordOptions,
     /// Increase verbosity of the command
@@ -13,7 +13,7 @@ pub struct Cli {
 }
 
 #[derive(Subcommand)]
-enum Commands {
+pub enum Commands {
     /// Commands that solely encrypt data
     Encrypt(#[command(flatten)] EncryptDecryptOptions),
     /// Commands that solely decrypt data
@@ -53,7 +53,7 @@ pub struct EncryptDecryptOptions {
 pub struct OutputOptions {
     /// The output file/directory name
     #[arg(short, long)]
-    pub output: String,
+    pub output: Option<String>,
     /// Replace the input file with the output file
     #[arg(short, long)]
     pub replace: bool,
